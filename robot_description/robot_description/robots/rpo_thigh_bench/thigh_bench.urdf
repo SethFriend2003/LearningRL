@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <!--
   PACE bench rig: one RPO thigh actuator (DM-J10010L), axis VERTICAL (+z), so gravity puts no
-  torque on the joint. bracket_link is the load bolted to the output flange.
+  torque on the joint. bracket_link is the bare thigh bracket (NO knee motor) on the output flange.
 
   PLACEHOLDER INERTIAL: bracket_link's <inertial> is rpo.urdf's left_thigh_pitch_link
   (rpo_description @ 37aac9c), rotated into this frame (bracket along +x, joint axis +z).
-  That link includes the knee motor, so it is NOT the bare bracket. Replace mass, CoM and
-  inertia with the bench part's values (weighed mass, CAD inertia about its CoM) before fitting:
-  the fit attributes any inertia error to armature.
+  That link includes the knee motor, so it is far heavier than the bare bracket on the rig.
+  Replace mass, CoM and inertia with the bare bracket's (weighed mass, CAD CoM + inertia about
+  its CoM) before fitting: the fit attributes any inertia error to armature.
 -->
 <robot name="rpo_thigh_bench">
   <link name="base_link">

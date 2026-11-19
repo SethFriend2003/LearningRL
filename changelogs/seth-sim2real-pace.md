@@ -35,7 +35,8 @@ Port deviations from upstream PACE:
 
 ## Open
 
-- Bracket mass / CoM / inertia: placeholder in `thigh_bench.urdf` (URDF thigh link incl. knee motor).
+- Bench load is the bare thigh bracket, no knee motor (decided 2026-11-19). Its mass / CoM / inertia
+  are still a placeholder in `thigh_bench.urdf` (URDF thigh link incl. knee motor, too heavy).
 - Real chirp log format and the Kp/Kd it was recorded with.
 
 ## Runs

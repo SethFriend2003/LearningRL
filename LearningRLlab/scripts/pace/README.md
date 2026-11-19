@@ -11,7 +11,7 @@ damping**, **delay** (physics steps of 5 ms). The result goes to all six thigh j
 
 ## 1. Recording the chirp (bench)
 
-Rig: one thigh motor, **axis vertical**, thigh bracket bolted on, nothing else touching it.
+Rig: one thigh motor, **axis vertical**, the bare thigh bracket bolted on (**no knee motor**), nothing else touching it.
 
 | What | Requirement |
 |---|---|
@@ -19,13 +19,13 @@ Rig: one thigh motor, **axis vertical**, thigh bracket bolted on, nothing else t
 | Signal | linear chirp 0.1 → 10 Hz over 20–30 s, starting and ending at rest. Taper the amplitude so peak speed `2π·f·A` stays under ~20 rad/s (≤ 0.3 rad at 10 Hz); don't go tiny either (backlash). |
 | Log | per sample, on one clock: **time, commanded position, measured position**. ≥ 200 Hz, ideally 500–1000 Hz. CSV, one row per sample, any column names. |
 | Extra runs | a second chirp with a different amplitude, kept out of the fit, to validate. |
-| The bracket | weigh it; from CAD, its CoM relative to the motor axis and its inertia about the CoM. |
+| The bracket | weigh the bare bracket (with its bolts); from CAD, its CoM relative to the motor axis and its inertia about the CoM. |
 
 ## 2. Put the bracket into the sim
 
 Replace `bracket_link`'s `<inertial>` in
 `robot_description/robot_description/robots/rpo_thigh_bench/thigh_bench.urdf` (it is currently
-a **placeholder**: the URDF thigh link incl. the knee motor). Bench frame: joint axis +z, bracket
+a **placeholder**: the URDF thigh link *including* the knee motor, ~2.35 kg — much heavier than the bare bracket). Bench frame: joint axis +z, bracket
 along +x. Inertia errors are absorbed into the fitted armature, so this matters.
 
 ## 3. Run it (from the docker repo root, container up)
