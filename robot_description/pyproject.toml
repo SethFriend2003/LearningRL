@@ -34,7 +34,7 @@ dev = [
 include = ["robot_description*"]
 
 [tool.setuptools.package-data]
-robot_description = ["robots/*/robot.yaml"]
+robot_description = ["robots/*/robot.yaml", "robots/*/*.urdf"]
 
 # ---------------------------------------------------------------------------
 # ruff -- the only linter/formatter this repo uses (no black/isort/flake8),

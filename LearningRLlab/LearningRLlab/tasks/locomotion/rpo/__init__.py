@@ -1,4 +1,4 @@
-"""Gym registration for the LearningRL-RPO-Walk-v0 locomotion task."""
+"""Gym registration for LearningRL-RPO-Walk-v0 and its PACE-actuator twin LearningRL-RPO-Walk-PACE-v0."""
 
 import gymnasium as gym
 
@@ -22,6 +22,28 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": f"{__name__}.rpo_env_cfg:LearningRLRPOWalkEnvCfg_PLAY",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LearningRLRPOWalkPPORunnerCfg",
+        "default_agent": "rsl_rl",
+    },
+)
+
+gym.register(
+    id="LearningRL-RPO-Walk-PACE-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.rpo_env_cfg:LearningRLRPOWalkPACEEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LearningRLRPOWalkPACEPPORunnerCfg",
+        "default_agent": "rsl_rl",
+    },
+)
+
+gym.register(
+    id="LearningRL-RPO-Walk-PACE-v0-PLAY",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.rpo_env_cfg:LearningRLRPOWalkPACEEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LearningRLRPOWalkPACEPPORunnerCfg",
         "default_agent": "rsl_rl",
     },
 )

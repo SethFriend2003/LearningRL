@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+  PACE bench rig: one RPO thigh actuator (DM-J10010L), axis VERTICAL (+z), so gravity puts no
+  torque on the joint. bracket_link is the load bolted to the output flange.
+
+  PLACEHOLDER INERTIAL: bracket_link's <inertial> is rpo.urdf's left_thigh_pitch_link
+  (rpo_description @ 37aac9c), rotated into this frame (bracket along +x, joint axis +z).
+  That link includes the knee motor, so it is NOT the bare bracket. Replace mass, CoM and
+  inertia with the bench part's values (weighed mass, CAD inertia about its CoM) before fitting:
+  the fit attributes any inertia error to armature.
+-->
+<robot name="rpo_thigh_bench">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <geometry><cylinder radius="0.06" length="0.05"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="thigh_bench_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="bracket_link"/>
+    <origin xyz="0 0 0.04" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <!-- rpo.urdf thigh joint effort/velocity class (120 N*m, 25 rad/s) -->
+    <limit lower="-3.14" upper="3.14" effort="120" velocity="25"/>
+  </joint>
+
+  <link name="bracket_link">
+    <inertial>
+      <origin xyz="0.19858149 -0.00004587 -0.01904764" rpy="0 0 0"/>
+      <mass value="2.34600715"/>
+      <inertia ixx="0.00302937" ixy="0.0000143" ixz="0.0021509"
+               iyy="0.02018963" iyz="0.0000031" izz="0.02158818"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.12 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.24 0.04 0.02"/></geometry>
+    </visual>
+  </link>
+</robot>

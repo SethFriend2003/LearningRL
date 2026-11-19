@@ -11,7 +11,7 @@ Two targets are also retuned off the RPO's own geometry rather than carried over
 ``__post_init__``). Everything else -- MDP terms, weights, terrain, physics, PPO -- is the G1 walk's.
 """
 
-from robot_description.robots.roboparty_rpo import RPO_CFG, RPO_FEET_CONTACT, RPO_TERMINATION_CONTACT
+from robot_description.robots.roboparty_rpo import RPO_CFG, RPO_FEET_CONTACT, RPO_PACE_CFG, RPO_TERMINATION_CONTACT
 from robot_description.robots.roboparty_rpo.joint_groups import NOMINAL_HEIGHT
 
 from isaaclab.managers import SceneEntityCfg
@@ -85,6 +85,31 @@ class LearningRLRPOWalkEnvCfg(LearningRLG1WalkEnvCfg):
 @configclass
 class LearningRLRPOWalkEnvCfg_PLAY(LearningRLRPOWalkEnvCfg):
     """Playback variant of ``LearningRLRPOWalkEnvCfg``, per the ``-PLAY`` rule in ``CLAUDE.md``."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        self.scene.num_envs = 100
+        self.viewer.origin_type = "asset_root"
+        self.viewer.asset_name = "robot"
+        self.viewer.env_index = 0
+
+        self.observations.policy.enable_corruption = False
+
+
+@configclass
+class LearningRLRPOWalkPACEEnvCfg(LearningRLRPOWalkEnvCfg):
+    """``LearningRLRPOWalkEnvCfg`` on ``RPO_PACE_CFG``: bench-identified thigh actuators, all else equal."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        self.scene.robot = RPO_PACE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+
+
+@configclass
+class LearningRLRPOWalkPACEEnvCfg_PLAY(LearningRLRPOWalkPACEEnvCfg):
+    """Playback variant of ``LearningRLRPOWalkPACEEnvCfg``, per the ``-PLAY`` rule in ``CLAUDE.md``."""
 
     def __post_init__(self) -> None:
         super().__post_init__()

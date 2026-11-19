@@ -64,6 +64,8 @@ Actuator variants, in the order you should reach for them:
 - `RPO_IMPLICIT_CFG` -- `ImplicitActuatorCfg`, solver-side PD, no delay. The
   cheap and unconditionally stable fallback, and what `unitree_g1` uses as its
   own default.
+- `RPO_PACE_CFG` -- `RPO_CFG` with the six thigh joints on `PaceDelayedPDActuatorCfg`,
+  carrying the bench-identified DM-J10010L parameters from `pace_fit.py`.
 """
 
 from __future__ import annotations
@@ -72,7 +74,9 @@ from isaaclab.actuators import ActuatorBaseCfg, DelayedPDActuatorCfg, ImplicitAc
 from isaaclab.assets import ArticulationCfg
 
 from robot_description import paths
+from robot_description.robots.pace_actuator import PaceDelayedPDActuatorCfg
 from robot_description.robots.roboparty_rpo import joint_groups as jg
+from robot_description.robots.roboparty_rpo import pace_fit
 from robot_description.robots.urdf_common import RobotUrdfFileCfg
 
 RPO_JOINT_NAMES: tuple[str, ...] = jg.RPO_JOINT_NAMES
@@ -96,7 +100,11 @@ def _group_dict(patterns: tuple[str, ...], source: dict[str, float]) -> dict[str
     return {pattern: source[pattern] for pattern in patterns}
 
 
-def _build_actuators(actuator_cls: type[ActuatorBaseCfg], **extra) -> dict[str, ActuatorBaseCfg]:
+def _build_actuators(
+    actuator_cls: type[ActuatorBaseCfg],
+    groups: dict[str, tuple[str, ...]] = jg.ACTUATOR_GROUPS,
+    **extra,
+) -> dict[str, ActuatorBaseCfg]:
     """One `actuator_cls` per `jg.ACTUATOR_GROUPS` entry, so both exported cfgs
     share one copy of the limits and PD baseline. `extra` carries the kwargs
     only some actuator classes accept (`min_delay`/`max_delay`).
@@ -121,7 +129,7 @@ def _build_actuators(actuator_cls: type[ActuatorBaseCfg], **extra) -> dict[str, 
             armature=_group_dict(patterns, jg.ARMATURE),
             **extra,
         )
-        for name, patterns in jg.ACTUATOR_GROUPS.items()
+        for name, patterns in groups.items()
     }
 
 
@@ -159,3 +167,44 @@ RPO_IMPLICIT_CFG = ArticulationCfg(
 The `G1_CFG` equivalent, and the A/B baseline for `RPO_CFG`: a policy
 that trains here but not there is being taught by the delay, not hindered by
 it."""
+
+
+def _build_pace_actuators() -> dict[str, ActuatorBaseCfg]:
+    """`RPO_CFG`'s groups with `pace_fit.JOINT_EXPR` split out of `legs` into a `thigh` group."""
+    thigh = pace_fit.JOINT_EXPR
+    groups = {
+        name: tuple(p for p in pats if p not in thigh) for name, pats in jg.ACTUATOR_GROUPS.items()
+    }
+    actuators = _build_actuators(
+        DelayedPDActuatorCfg, groups, min_delay=jg.MIN_DELAY, max_delay=jg.MAX_DELAY
+    )
+    actuators["thigh"] = PaceDelayedPDActuatorCfg(
+        joint_names_expr=list(thigh),
+        effort_limit=_group_dict(thigh, jg.EFFORT_LIMIT),
+        effort_limit_sim=_group_dict(thigh, jg.EFFORT_LIMIT),
+        velocity_limit=_group_dict(thigh, jg.VELOCITY_LIMIT),
+        velocity_limit_sim=_group_dict(thigh, jg.VELOCITY_LIMIT),
+        stiffness=_group_dict(thigh, jg.STIFFNESS),
+        damping=_group_dict(thigh, jg.DAMPING),
+        armature=pace_fit.ARMATURE,
+        friction=pace_fit.FRICTION,
+        viscous_damping=pace_fit.VISCOUS_DAMPING,
+        # bench encoder offset is that motor's calibration, not a model property
+        encoder_bias=0.0,
+        min_delay=max(0, pace_fit.DELAY - 1),
+        max_delay=pace_fit.DELAY + 1,
+    )
+    return actuators
+
+
+RPO_PACE_CFG = ArticulationCfg(
+    prim_path="{ENV_REGEX_NS}/Robot",
+    spawn=_SPAWN_CFG,
+    init_state=_INIT_STATE,
+    soft_joint_pos_limit_factor=0.90,
+    actuators=_build_pace_actuators(),
+)
+"""`RPO_CFG` with PACE-identified thigh actuators (`pace_fit.py`).
+
+Until `pace_fit.FITTED` is True this is `RPO_CFG`'s model, except that the thigh group draws its
+random delay independently of knee/torso. Knee and torso share the motor but keep `RPO_CFG`'s."""
