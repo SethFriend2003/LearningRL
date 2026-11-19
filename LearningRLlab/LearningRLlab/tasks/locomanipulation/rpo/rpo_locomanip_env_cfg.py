@@ -24,7 +24,7 @@ from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils.configclass import configclass
 
-from LearningRLlab.tasks.locomanipulation.g1.g1_locomanip_env_cfg import LearningRLG1LocoManipEnvCfg
+from LearningRLlab.tasks.locomanipulation.g1 import g1_locomanip_env_cfg as g1_locomanip
 from LearningRLlab.tasks.locomotion.rpo.rpo_env_cfg import swap_in_rpo
 
 from . import mdp
@@ -32,28 +32,54 @@ from . import mdp
 FOREARMS = ["left_elbow_yaw_link", "right_elbow_yaw_link"]
 
 
+##
+# MDP settings
+##
+
+
 @configclass
-class LearningRLRPOLocoManipEnvCfg(LearningRLG1LocoManipEnvCfg):
-    """``LearningRLG1LocoManipEnvCfg`` with the RPO, tracking its wrist points."""
+class CommandsCfg(g1_locomanip.CommandsCfg):
+    """The G1 task's commands, with ``hand_track`` tracking the RPO's wrist points.
 
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        swap_in_rpo(self)
+    Declared here, at class level, rather than patched in ``__post_init__``: the cfg's
+    ``class_type`` string is only made resolvable while the cfg instance is constructed.
+    """
 
-        hand = self.commands.hand_track
+    hand_track = mdp.HandPosCommandCfg(
+        asset_name="robot",
         # left first, then right: HandPosCommand checks the prefixes
-        hand.body_names = list(FOREARMS)
-        hand.class_type = "LearningRLlab.tasks.locomanipulation.rpo.mdp.commands:RPOHandPosCommand"
+        body_names=list(FOREARMS),
+        mode="random",
+        resampling_time_range=(0.5, 2.0),
+        rel_standing_envs=0.1,
+        debug_vis=True,
         # yaw-aligned root frame, metres. x: from beside the hip to a forearm's length past a
         # table edge; y: each wrist on its own side, from a 0.2 m box's faces out to arms-wide;
         # z: from arms hanging at the hips to a lifted box held at chest height.
-        hand.ranges = mdp.HandPosCommandCfg.Ranges(
+        ranges=mdp.HandPosCommandCfg.Ranges(
             pos_x=(0.0, 0.40),
             pos_y=(-0.35, 0.35),
             pos_y_left=(0.0, 0.35),
             pos_y_right=(-0.35, 0.0),
             pos_z=(-0.15, 0.35),
-        )
+        ),
+    )
+
+
+##
+# Environment configuration
+##
+
+
+@configclass
+class LearningRLRPOLocoManipEnvCfg(g1_locomanip.LearningRLG1LocoManipEnvCfg):
+    """``LearningRLG1LocoManipEnvCfg`` with the RPO, tracking its wrist points."""
+
+    commands: CommandsCfg = CommandsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        swap_in_rpo(self)
 
         self.events.add_forearm_mass = EventTerm(
             func=mdp.randomize_rigid_body_mass,
