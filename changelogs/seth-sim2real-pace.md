@@ -11,7 +11,7 @@ friction, 0–2 step random delay) with one identified from a real bench chirp, 
 |---|---|---|
 | `dca6ee5` | LearningRL | PACE ported to Isaac Lab 3.0 / Newton: `PaceDelayedPDActuator`, thigh bench rig + `LearningRL-RPO-ThighBench-PACE-v0`, CMA-ES fit, CSV converter, plot, export; `RPO_PACE_CFG` + `LearningRL-RPO-Walk-PACE-v0` |
 | `d7567fe` | LearningRL | Bench load is the bare thigh bracket (no knee motor) |
-| — | LearningRL | Bracket inertia from CAD: 8469.549 kg·mm² about the motor axis (was URDF thigh link placeholder, 0.0216 kg·m² at CoM + offset) |
+| `fb0e2e0` | LearningRL | Bracket inertia from CAD: 8469.549 kg·mm² about the motor axis (was URDF thigh link placeholder, 0.0216 kg·m² at CoM + offset) |
 | `1c5efff` | hcrl-isaaclab-docker | `cmaes` in `Dockerfile.hcrl` (needs `hcrl.sh rebuild`) |
 
 Concept: CMA-ES runs one bench-rig candidate per env, replays the real chirp's position
