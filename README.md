@@ -18,13 +18,14 @@ LearningRL/
 └── gitman.yml            fetches the robots' meshes into robot_description/vendor/
 ```
 
-Two robots ship with three tasks:
+Two robots ship with four tasks:
 
 | Task id | Robot |
 |---|---|
 | `LearningRL-RPO-Walk-v0` | RoboParty RPO (ROBOTO_ORIGIN), 23 joints -- **the one you work on** |
 | `LearningRL-G1-Walk-v0` | Unitree G1, 29 joints -- the base task the RPO walk inherits from |
 | `LearningRL-G1-LocoManipulation-v0` | Unitree G1 -- the G1 walk, plus reaching hand targets with either or both hands |
+| `LearningRL-RPO-LocoManipulation-v0` | RoboParty RPO -- the G1 locomanipulation task with the RPO swapped in; tracks the wrist points (forearm tips) |
 
 Each has a `-PLAY` twin (e.g. `LearningRL-RPO-Walk-v0-PLAY`) that the TA uses to
 record a video and export the policy.

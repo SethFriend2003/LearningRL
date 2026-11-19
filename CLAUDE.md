@@ -18,9 +18,11 @@ training happens elsewhere and returns an exported run directory
 (`config.yaml` + `policy.onnx` + `policy.onnx.data`) that `LearningRLsim` replays.
 
 Tasks: `LearningRL-G1-Walk-v0` (Unitree G1, 29-DoF), `LearningRL-RPO-Walk-v0`
-(RoboParty RPO, 23-DoF) and `LearningRL-G1-LocoManipulation-v0` (the G1 walk plus
-hand-position targets), each with a `-PLAY` twin. The RPO walk and the
-locomanipulation task both subclass the G1 walk.
+(RoboParty RPO, 23-DoF), `LearningRL-G1-LocoManipulation-v0` (the G1 walk plus
+hand-position targets) and `LearningRL-RPO-LocoManipulation-v0` (that task with the
+RPO swapped in, tracking its wrist points), each with a `-PLAY` twin. The RPO walk and
+the G1 locomanipulation task both subclass the G1 walk; both RPO tasks apply the robot
+swap through `rpo_env_cfg.swap_in_rpo`.
 
 ## Key Commands
 
@@ -56,7 +58,8 @@ LearningRL/
 │   │   ├── scenes.py, terrain_generator.py
 │   │   ├── LearningRL_mdp/          shared MDP terms (symmetry.py)
 │   │   ├── tasks/locomotion/{g1,rpo}/   env cfg, mdp/, agents/rsl_rl_ppo_cfg.py, gym registration
-│   │   └── tasks/locomanipulation/g1/   the G1 walk + HandPosCommand, its reward and weight ramp
+│   │   ├── tasks/locomanipulation/g1/   the G1 walk + HandPosCommand, its reward and weight ramp
+│   │   └── tasks/locomanipulation/rpo/  the G1 locomanip task on the RPO; RPOHandPosCommand tracks wrists
 │   ├── scripts/                     train.py, play.py, list_envs.py
 │   └── tests/                       static: ruff gate, isaaclab_assets ban, -PLAY rule
 ├── robot_description/
